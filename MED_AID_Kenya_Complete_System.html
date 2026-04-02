@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MED AID Kenya — Health Accountability Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--red:#BB0000;--green:#006600;--black:#0D0D0B;--gold:#C8960C;--white:#FAFAF8;--surface:#F4F2ED;--border:rgba(0,0,0,0.09);--text:#1C1C1A;--muted:#6E6E6A;--font-d:'Playfair Display',Georgia,serif;--font-b:'DM Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-b);background:var(--white);color:var(--text);overflow-x:hidden}
+.page{display:none}.page.active{display:block}
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo-box{width:34px;height:34px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:14px;font-family:var(--font-d)}
+.logo-name{font-family:var(--font-d);font-size:18px;font-weight:900;letter-spacing:-0.5px}
+.logo-name span{color:var(--red)}
+.nav-links{display:flex;gap:2px}
+.nav-btn{background:none;border:none;padding:6px 11px;border-radius:6px;font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;font-family:var(--font-b);transition:all .15s}
+.nav-btn:hover,.nav-btn.active{background:var(--surface);color:var(--text)}
+.nav-cta{background:var(--red);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:opacity .15s}
+.nav-cta:hover{opacity:.87}
+.flag-bar{display:flex;height:4px}
+.fb1{flex:1;background:var(--red)}
+.fb2{flex:.5;background:#1a1a1a}
+.fb3{flex:1;background:var(--green)}
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--black);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:none}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--surface);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal h2{font-family:var(--font-d);font-size:24px;margin-bottom:6px}
+.modal .sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+/* FORMS */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13.5px;font-family:var(--font-b);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--red);background:#fff}
+.form-textarea{resize:vertical;min-height:100px;line-height:1.6}
+.radio-group{display:flex;gap:8px}
+.radio-opt{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;text-align:center;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;user-select:none}
+.radio-opt.sel-anon{border-color:var(--green);background:#EFF7EE;color:var(--green)}
+.radio-opt.sel-id{border-color:var(--red);background:#FEF0F0;color:var(--red)}
+.radio-opt:hover{border-color:var(--muted)}
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;font-size:13px;color:var(--muted)}
+.upload-zone:hover{border-color:var(--red);color:var(--red)}
+.file-list{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.file-tag{background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:20px;font-size:11.5px;display:flex;align-items:center;gap:6px}
+.file-tag button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;line-height:1;padding:0}
+.btn-primary{background:var(--red);color:#fff;border:none;padding:12px 24px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:opacity .15s;width:100%}
+.btn-primary:hover{opacity:.88}
+.btn-secondary{background:#fff;color:var(--text);border:1.5px solid var(--border);padding:10px 20px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);transition:all .15s}
+.btn-secondary:hover{background:var(--surface)}
+.btn-green{background:var(--green);color:#fff;border:none;padding:12px 24px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b);transition:opacity .15s}
+.btn-green:hover{opacity:.88}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;letter-spacing:.2px}
+.badge-anon{background:#EFF7EE;color:var(--green)}
+.badge-id{background:#FEF0F0;color:var(--red)}
+.badge-new{background:#FEF3E0;color:#B45309}
+.badge-inreview{background:#EEF2FF;color:#3730A3}
+.badge-resolved{background:#EFF7EE;color:var(--green)}
+.badge-escalated{background:#FEF0F0;color:var(--red)}
+.badge-ministry{background:#0D0D0B;color:#fff}
+.badge-strike{background:#FEE2E2;color:#991B1B}
+.badge-lobby{background:#F3E8FF;color:#6B21A8}
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px;transition:all .2s}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07);transform:translateY(-1px)}
+.card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.card-title{font-size:15px;font-weight:700;margin-bottom:6px;line-height:1.4}
+.card-body{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:12px}
+.card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-stat{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.upvote-btn{background:var(--surface);border:1px solid var(--border);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;font-family:var(--font-b)}
+.upvote-btn:hover{background:#FEF0F0;border-color:#FBDADA;color:var(--red)}
+.upvote-btn.voted{background:#FEF0F0;border-color:var(--red);color:var(--red)}
+.comment-btn{background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px;padding:5px 8px;border-radius:6px;font-family:var(--font-b);transition:all .15s}
+.comment-btn:hover{background:var(--surface);color:var(--text)}
+/* COMMENTS */
+.comments-section{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.comment-item{display:flex;gap:10px;margin-bottom:12px}
+.comment-avatar{width:32px;height:32px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.comment-content{flex:1}
+.comment-author{font-size:12px;font-weight:700;margin-bottom:2px}
+.comment-text{font-size:13px;color:var(--muted);line-height:1.55}
+.comment-time{font-size:11px;color:var(--muted);margin-top:3px}
+.comment-input-wrap{display:flex;gap:8px;margin-top:10px}
+.comment-input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font-b);background:var(--surface);outline:none;transition:border-color .15s}
+.comment-input:focus{border-color:var(--red);background:#fff}
+.comment-submit{background:var(--red);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font-b);white-space:nowrap}
+/* EVIDENCE */
+.evidence-item{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:11.5px;margin:3px;cursor:pointer;transition:all .15s}
+.evidence-item:hover{border-color:var(--red);color:var(--red)}
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filter-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font-b)}
+.filter-btn:hover,.filter-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
+/* SECTION */
+.section-wrap{max-width:1100px;margin:0 auto;padding:40px 32px}
+.section-tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:8px}
+.section-title{font-family:var(--font-d);font-size:30px;font-weight:900;letter-spacing:-0.8px;line-height:1.15;margin-bottom:10px}
+.section-sub{font-size:14.5px;color:var(--muted);line-height:1.65;margin-bottom:32px}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+/* STATS BAR */
+.stats-bar{background:var(--surface);padding:24px 32px;display:flex;justify-content:space-around;border-bottom:1px solid var(--border)}
+.stat-item{text-align:center}
+.stat-num{font-family:var(--font-d);font-size:28px;font-weight:900;color:var(--red)}
+.stat-label{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+/* HERO */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:480px;overflow:hidden}
+.hero-left{padding:56px 48px;display:flex;flex-direction:column;justify-content:center;gap:20px}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;background:#FEF3F3;color:var(--red);font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 14px;border-radius:20px;width:fit-content;border:1px solid #FBDADA}
+.hero-title{font-family:var(--font-d);font-size:42px;font-weight:900;line-height:1.08;letter-spacing:-1.5px}
+.hero-title .ac{color:var(--red)}
+.hero-sub{font-size:15px;line-height:1.65;color:var(--muted);max-width:430px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.hero-right{background:linear-gradient(145deg,#004d00 0%,#1a4a1a 50%,#002200 100%);display:flex;flex-direction:column;justify-content:center;gap:14px;padding:40px 36px;position:relative;overflow:hidden}
+.hero-right::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M20 20c0 5.523-4.477 10-10 10S0 25.523 0 20 4.477 10 10 10s10 4.477 10 10zm10-10c0 5.523-4.477 10-10 10s-10-4.477-10-10S14.477 0 20 0s10 4.477 10 10z'/%3E%3C/g%3E%3C/svg%3E")}
+.live-card{background:rgba(255,255,255,.94);border-radius:12px;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 8px 28px rgba(0,0,0,.25);position:relative;z-index:1;animation:slideUp .5s ease both}
+.live-card:nth-child(2){animation-delay:.12s;margin-left:16px}
+.live-card:nth-child(3){animation-delay:.24s}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.lc-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.lc-icon.r{background:#FEE2E2}.lc-icon.a{background:#FEF3C7}.lc-icon.g{background:#D1FAE5}
+.lc-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:2px}
+.lc-msg{font-size:12.5px;line-height:1.45;color:var(--text)}
+.lc-meta{font-size:10.5px;color:var(--muted);margin-top:4px;display:flex;gap:6px;align-items:center}
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin-bottom:20px}
+.search-input{flex:1;padding:10px 16px;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:var(--font-b);background:#fff;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--red)}
+/* TRACKING */
+.track-wrap{background:var(--surface);border-radius:12px;padding:20px;margin-bottom:20px}
+.track-num{font-family:monospace;font-size:22px;font-weight:700;color:var(--red);letter-spacing:2px}
+.track-steps{display:flex;align-items:center;gap:0;margin-top:14px}
+.track-step{display:flex;flex-direction:column;align-items:center;flex:1}
+.track-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.track-dot.done{background:var(--green);color:#fff}
+.track-dot.active{background:var(--red);color:#fff}
+.track-dot.pending{background:var(--border);color:var(--muted)}
+.track-line{height:2px;flex:1;background:var(--border);margin-bottom:16px}
+.track-line.done{background:var(--green)}
+.track-step-label{font-size:10.5px;font-weight:600;color:var(--muted);text-align:center;margin-top:4px}
+.track-step-label.done{color:var(--green)}
+.track-step-label.active{color:var(--red)}
+/* MINISTRY DASHBOARD */
+.ministry-header{background:var(--black);color:#fff;padding:32px 48px}
+.ministry-header h1{font-family:var(--font-d);font-size:28px;font-weight:900;margin-bottom:4px}
+.ministry-header p{font-size:13px;opacity:.6}
+.ministry-stat{background:rgba(255,255,255,.06);border-radius:10px;padding:16px 20px;text-align:center}
+.ministry-stat-num{font-family:var(--font-d);font-size:28px;font-weight:900;color:#fff}
+.ministry-stat-label{font-size:11px;opacity:.6;margin-top:2px}
+.resolution-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.resolution-card .rc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.resolution-card .rc-title{font-weight:700;font-size:14.5px}
+.resolution-card .rc-body{font-size:13.5px;color:var(--muted);line-height:1.65}
+/* HOSPITAL WATCHLIST */
+.hospital-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;align-items:flex-start;gap:16px}
+.hosp-rank{width:40px;height:40px;border-radius:10px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
+.hosp-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.hosp-county{font-size:12px;color:var(--muted)}
+.hosp-bar{height:5px;background:var(--surface);border-radius:3px;margin-top:8px;overflow:hidden}
+.hosp-fill{height:100%;background:var(--red);border-radius:3px;transition:width .6s}
+/* DONATE */
+.donate-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px}
+.donate-patient{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.donate-avatar{width:48px;height:48px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.donate-name{font-weight:700;font-size:14px}
+.donate-story{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5}
+.progress-bar{height:7px;background:var(--surface);border-radius:4px;overflow:hidden;margin:10px 0 6px}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .6s}
+.progress-label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);font-weight:600}
+.donate-btn{background:var(--green);color:#fff;border:none;width:100%;padding:10px;border-radius:8px;font-weight:700;font-size:13.5px;cursor:pointer;margin-top:12px;font-family:var(--font-b);transition:opacity .15s}
+.donate-btn:hover{opacity:.88}
+/* ACTIVISM */
+.activism-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px}
+.ac-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.ac-type{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px}
+.ac-title{font-size:16px;font-weight:700;line-height:1.4;margin-bottom:6px}
+.ac-body{font-size:13.5px;color:var(--muted);line-height:1.65}
+.ac-footer{margin-top:14px;display:flex;align-items:center;gap:10px}
+.support-btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-b);border:none;transition:all .15s}
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:24px}
+.tab-btn{padding:10px 18px;border:none;background:none;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:var(--font-b);transition:all .15s}
+.tab-btn.active{color:var(--red);border-bottom-color:var(--red)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+/* COUNTY */
+.county-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.county-pill{padding:10px 6px;background:#fff;border:1px solid var(--border);border-radius:9px;text-align:center;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.county-pill:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.county-pill.active{background:var(--red);color:#fff;border-color:var(--red)}
+.county-count{font-size:15px;font-weight:900;display:block;color:var(--red)}
+.county-pill.active .county-count{color:rgba(255,255,255,.85)}
+/* MINISTRY BANNER */
+.min-banner{background:var(--green);color:#fff;padding:32px 48px;display:flex;align-items:center;gap:24px}
+.min-banner h3{font-family:var(--font-d);font-size:22px;font-weight:900;margin-bottom:6px}
+.min-banner p{font-size:13px;opacity:.75;line-height:1.6}
+.min-btn{margin-left:auto;flex-shrink:0;background:#fff;color:var(--green);padding:12px 22px;border-radius:9px;font-weight:700;font-size:13.5px;cursor:pointer;border:none;font-family:var(--font-b)}
+/* FOOTER */
+footer{background:var(--black);color:rgba(255,255,255,.55);padding:40px 48px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px}
+.foot-brand h3{color:#fff;font-family:var(--font-d);font-size:18px;margin-bottom:8px}
+.foot-brand p{font-size:12.5px;line-height:1.65}
+.foot-col h4{color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.foot-link{font-size:12px;display:block;margin-bottom:7px;cursor:pointer;transition:color .15s}
+.foot-link:hover{color:#fff}
+.foot-bottom{background:var(--black);padding:14px 48px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,.3)}
+.foot-flag{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle}
+.foot-flag span{display:inline-block;height:9px}
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--surface)}
+.login-card{background:#fff;border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.1)}
+.login-card .logo-row{display:flex;justify-content:center;margin-bottom:24px}
+.login-card h2{font-family:var(--font-d);font-size:24px;text-align:center;margin-bottom:6px}
+.login-card p{font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px}
+.role-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.role-opt{padding:14px 10px;border:1.5px solid var(--border);border-radius:10px;text-align:center;cursor:pointer;transition:all .15s}
+.role-opt .ri{font-size:22px;display:block;margin-bottom:4px}
+.role-opt .rn{font-size:12px;font-weight:700}
+.role-opt.selected{border-color:var(--red);background:#FEF0F0}
+/* UTILITY */
+.divider{height:1px;background:var(--border);margin:20px 0}
+.text-center{text-align:center}
+.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}
+.mb-8{margin-bottom:8px}.mb-16{margin-bottom:16px}
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
+.text-red{color:var(--red)}.text-green{color:var(--green)}.text-muted{color:var(--muted)}
+.font-bold{font-weight:700}.font-display{font-family:var(--font-d)}
+.empty-state{text-align:center;padding:48px 24px;color:var(--muted)}
+.empty-state .es-icon{font-size:40px;display:block;margin-bottom:12px}
+.empty-state p{font-size:13.5px;line-height:1.6}
+/* MINISTRY LOGIN */
+.admin-badge{background:var(--black);color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+/* NOTIFICATION DOT */
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;margin-left:4px}
+/* RESPONSE BOX */
+.response-box{background:#F0F9F0;border:1px solid #9FD99F;border-radius:10px;padding:16px;margin-top:12px}
+.response-box .rb-header{font-size:11.5px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.response-box .rb-text{font-size:13.5px;color:#1a4a1a;line-height:1.6}
+/* EMERGENCY */
+.emergency-banner{background:#BB0000;color:#fff;padding:14px 32px;display:flex;align-items:center;gap:12px;font-size:13.5px;font-weight:600}
+.emergency-banner button{margin-left:auto;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-b)}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+/* PRINT */
+@media print{nav,.modal-overlay,#toast{display:none!important}.page.active{display:block!important}}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MODAL: File Complaint -->
+<div class="modal-overlay" id="complaint-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('complaint-modal')">✕</button>
+<h2>🩺 File a Complaint</h2>
+<p class="sub">Your complaint goes directly to the Ministry of Health. You choose whether to stay anonymous. Evidence you upload is securely stored.</p>
+<div class="form-group">
+<label class="form-label">Complaint Category *</label>
+<select class="form-select" id="c-category">
+<option value="">— Select Category —</option>
+<option>Doctor / Staff Absenteeism</option>
+<option>Insurance Overcharging</option>
+<option>Discharge Detention (Unpaid Fees)</option>
+<option>Drug / Equipment Shortage</option>
+<option>Patient Neglect or Mistreatment</option>
+<option>Facility Poor Condition</option>
+<option>Corruption / Bribery</option>
+<option>Emergency Neglect</option>
+<option>Other Healthcare Failure</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Facility / Hospital Name *</label>
+<input class="form-input" id="c-facility" type="text" placeholder="e.g. Kenyatta National Hospital">
+</div>
+<div class="form-group">
+<label class="form-label">County *</label>
+<select class="form-select" id="c-county">
+<option value="">— Select County —</option>
+<option>Nairobi</option><option>Mombasa</option><option>Kisumu</option><option>Nakuru</option>
+<option>Kiambu</option><option>Meru</option><option>Kilifi</option><option>Kakamega</option>
+<option>Machakos</option><option>Uasin Gishu</option><option>Nyeri</option><option>Bungoma</option>
+<option>Murang'a</option><option>Kajiado</option><option>Trans Nzoia</option><option>Siaya</option>
+<option>Homa Bay</option><option>Migori</option><option>Kericho</option><option>Bomet</option>
+<option>Nandi</option><option>Laikipia</option><option>Vihiga</option><option>Busia</option>
+<option>Nyamira</option><option>Kisii</option><option>Embu</option><option>Kitui</option>
+<option>Makueni</option><option>Tharaka Nithi</option><option>Nyandarua</option><option>Kirinyaga</option>
+<option>Elgeyo Marakwet</option><option>West Pokot</option><option>Baringo</option><option>Samburu</option>
+<option>Isiolo</option><option>Marsabit</option><option>Mandera</option><option>Wajir</option>
+<option>Garissa</option><option>Tana River</option><option>Lamu</option><option>Taita Taveta</option>
+<option>Kwale</option><option>Turkana</option><option>Narok</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">What happened? *</label>
+<textarea class="form-textarea" id="c-desc" placeholder="Describe the incident clearly and specifically. Include dates, times, names of staff if known, and the impact on the patient..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">Date of Incident</label>
+<input class="form-input" id="c-date" type="date">
+</div>
+<div class="form-group">
+<label class="form-label">Is this an emergency / life-threatening case?</label>
+<div class="radio-group" style="gap:8px">
+<div class="radio-opt" id="emerg-no" onclick="setEmerg(false)" style="flex:1">No — Standard Report</div>
+<div class="radio-opt" id="emerg-yes" onclick="setEmerg(true)" style="flex:1;border-color:#BB0000;background:#FEF0F0;color:#BB0000">🚨 YES — Escalate Now</div>
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Identity Preference</label>
+<div class="radio-group">
+<div class="radio-opt sel-anon" id="opt-anon" onclick="setAnon(true)">🛡 Stay Anonymous</div>
+<div class="radio-opt" id="opt-id" onclick="setAnon(false)">✓ Identify Myself</div>
+</div>
+</div>
+<div id="id-fields" style="display:none">
+<div class="form-group">
+<label class="form-label">Your Name</label>
+<input class="form-input" id="c-name" type="text" placeholder="Full name">
+</div>
+<div class="form-group">
+<label class="form-label">Phone / Email</label>
+<input class="form-input" id="c-contact" type="text" placeholder="For follow-up">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">Upload Evidence (Photos, Videos, Documents)</label>
+<div class="upload-zone" onclick="document.getElementById('c-file').click()">
+📎 Click to attach files — photos, video clips, receipts, discharge letters<br>
+<span style="font-size:11px;margin-top:4px;display:block;opacity:.7">Max 500MB per file. All types accepted.</span>
+</div>
+<input type="file" id="c-file" multiple style="display:none" onchange="addFiles(this)">
+<div class="file-list" id="file-list"></div>
+</div>
+<button class="btn-primary" onclick="submitComplaint()">Submit Complaint — Get Tracking Number</button>
+<p style="font-size:11.5px;color:var(--muted);text-align:center;margin-top:10px">Protected under Kenya's Whistleblower Protection Act. Anonymous submissions are not IP-logged.</p>
+</div>
+</div>
+
+<!-- MODAL: Donate -->
+<div class="modal-overlay" id="donate-modal">
+<div class="modal" style="max-width:460px">
+<button class="modal-close" onclick="closeModal('donate-modal')">✕</button>
+<h2 id="dm-title">Support This Patient</h2>
+<p class="sub" id="dm-story"></p>
+<div class="form-group">
+<label class="form-label">Donation Amount (KES)</label>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+<div class="radio-opt" onclick="setDonateAmt(500,this)">500</div>
+<div class="radio-opt" onclick="setDonateAmt(1000,this)">1,000</div>
+<div class="radio-opt" onclick="setDonateAmt(2500,this)">2,500</div>
+<div class="radio-opt" onclick="setDonateAmt(5000,this)">5,000</div>
+</div>
+<input class="form-input" id="donate-amount" type="number" placeholder="Or enter amount...">
+</div>
+<div class="form-group">
+<label class="form-label">M-Pesa Number</label>
+<input class="form-input" id="mpesa-num" type="tel" placeholder="07XX XXX XXX">
+</div>
+<div class="form-group">
+<label class="form-label">Message (optional)</label>
+<input class="form-input" id="donate-msg" type="text" placeholder="A note of encouragement...">
+</div>
+<button class="btn-green" onclick="processDonate()" style="width:100%">Send via M-Pesa 💚</button>
+<p style="font-size:11.5px;text-align:center;color:var(--muted);margin-top:8px">100% goes to patient. MED AID takes no fees.</p>
+</div>
+</div>
+
+<!-- MODAL: Resolution -->
+<div class="modal-overlay" id="resolution-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('resolution-modal')">✕</button>
+<h2>🏛 Post Official Resolution</h2>
+<p class="sub">Post the Ministry of Health's official response to a complaint or issue. This will be publicly visible and linked to the complaint.</p>
+<div class="form-group">
+<label class="form-label">Related Complaint ID (if applicable)</label>
+<input class="form-input" id="r-id" type="text" placeholder="e.g. MED-2024-0892">
+</div>
+<div class="form-group">
+<label class="form-label">Resolution Title *</label>
+<input class="form-input" id="r-title" type="text" placeholder="Brief title of action taken">
+</div>
+<div class="form-group">
+<label class="form-label">Full Resolution Statement *</label>
+<textarea class="form-textarea" id="r-body" placeholder="Detail the actions taken, policy changes, disciplinary outcomes..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">Action Type</label>
+<select class="form-select" id="r-type">
+<option>Disciplinary Action Taken</option>
+<option>Policy Change Implemented</option>
+<option>Staff Deployment Done</option>
+<option>Investigation Launched</option>
+<option>Facility Suspended</option>
+<option>Insurance Probe Initiated</option>
+<option>Matter Under Review</option>
+</select>
+</div>
+<button class="btn-primary" onclick="submitResolution()">Publish Official Resolution</button>
+</div>
+</div>
+
+<!-- MODAL: Activism Post -->
+<div class="modal-overlay" id="activism-modal">
+<div class="modal">
+<button class="modal-close" onclick="closeModal('activism-modal')">✕</button>
+<h2>✊ Post Notice / Mobilise</h2>
+<p class="sub">Post a strike notice, demo notice, or lobby group action. This creates an official record that the Ministry cannot claim not to have received.</p>
+<div class="form-group">
+<label class="form-label">Notice Type</label>
+<select class="form-select" id="a-type">
+<option>Doctor / Health Worker Strike Notice</option>
+<option>Planned Demonstration</option>
+<option>Lobby Group Petition</option>
+<option>Public Interest Litigation Notice</option>
+<option>Media Embargo Notice</option>
+<option>County Health Sit-in</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Organisation / Group Name *</label>
+<input class="form-input" id="a-org" type="text" placeholder="e.g. Kenya Medical Practitioners Union">
+</div>
+<div class="form-group">
+<label class="form-label">Title of Notice *</label>
+<input class="form-input" id="a-title" type="text" placeholder="Brief, clear title">
+</div>
+<div class="form-group">
+<label class="form-label">Full Statement *</label>
+<textarea class="form-textarea" id="a-body" placeholder="Full details of demands, action planned, timeline, and affected facilities or counties..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">Planned Action Date</label>
+<input class="form-input" id="a-date" type="date">
+</div>
+<div class="form-group">
+<label class="form-label">Upload Supporting Documents</label>
+<div class="upload-zone" onclick="document.getElementById('a-file').click()">📎 Attach signed petition, court papers, union mandate...</div>
+<input type="file" id="a-file" multiple style="display:none">
+</div>
+<button class="btn-primary" onclick="submitActivism()">Post Official Notice (Timestamped)</button>
+</div>
+</div>
+
+<!-- MODAL: Tracking -->
+<div class="modal-overlay" id="track-modal">
+<div class="modal" style="max-width:500px">
+<button class="modal-close" onclick="closeModal('track-modal')">✕</button>
+<h2>🔍 Track Your Case</h2>
+<p class="sub">Enter your complaint tracking number to see the current status and any Ministry responses.</p>
+<div class="form-group">
+<label class="form-label">Tracking Number</label>
+<input class="form-input" id="track-input" type="text" placeholder="e.g. MED-2024-1472" style="font-family:monospace;font-size:16px;letter-spacing:1px">
+</div>
+<button class="btn-secondary" onclick="trackCase()" style="width:100%;margin-bottom:14px">Search Case</button>
+<div id="track-result"></div>
+</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="flag-bar"><div class="fb1"></div><div class="fb2"></div><div class="fb3"></div></div>
+<nav>
+<div class="nav-logo" onclick="showPage('home')">
+<div class="logo-box">MA</div>
+<span class="logo-name">MED <span>AID</span> Kenya</span>
+</div>
+<div class="nav-links">
+<button class="nav-btn active" id="nb-home" onclick="showPage('home')">Home</button>
+<button class="nav-btn" id="nb-feed" onclick="showPage('feed')">📋 Complaints <span class="notif-dot"></span></button>
+<button class="nav-btn" id="nb-watchlist" onclick="showPage('watchlist')">🏥 Hospital Watch</button>
+<button class="nav-btn" id="nb-county" onclick="showPage('county')">🗺 Counties</button>
+<button class="nav-btn" id="nb-donate" onclick="showPage('donate')">💚 Donate</button>
+<button class="nav-btn" id="nb-activism" onclick="showPage('activism')">✊ Activism</button>
+<button class="nav-btn" id="nb-ministry" onclick="showPage('ministry')">🏛 Ministry</button>
+</div>
+<button class="nav-cta" onclick="openModal('complaint-modal')">+ File Complaint</button>
+</nav>
+
+<!-- ===== PAGE: HOME ===== -->
+<div class="page active" id="page-home">
+<!-- HERO -->
+<section class="hero">
+<div class="hero-left">
+<div class="hero-kicker">🇰🇪 Kenya's Health Accountability Platform</div>
+<h1 class="hero-title">Your voice.<br>Their <span class="ac">accountability.</span><br>Better health.</h1>
+<p class="hero-sub">Report hospital neglect, insurance fraud, absent doctors, and healthcare failures. Anonymous or identified. With evidence. Directly to the Ministry of Health.</p>
+<div class="hero-actions">
+<button class="btn-primary" style="width:auto;padding:12px 22px" onclick="openModal('complaint-modal')">＋ File a Complaint</button>
+<button class="btn-secondary" onclick="showPage('feed')">View All Cases</button>
+<button class="btn-secondary" onclick="openModal('track-modal')">🔍 Track My Case</button>
+</div>
+</div>
+<div class="hero-right">
+<div class="live-card">
+<div class="lc-icon r">🚨</div>
+<div>
+<div class="lc-label">Doctor Absenteeism · KNH, Nairobi</div>
+<div class="lc-msg">Paediatric ward had no doctor for 6 hours. 40 patients in queue with no attention.</div>
+<div class="lc-meta"><span class="badge badge-anon">🛡 Anonymous</span> <span>2 hours ago</span> <span>⬆ 47 support</span></div>
+</div>
+</div>
+<div class="live-card">
+<div class="lc-icon a">💰</div>
+<div>
+<div class="lc-label">Insurance Overcharge · NHIF Issue</div>
+<div class="lc-msg">Hospital demanding Ksh 45,000 cash despite valid NHIF. Patient discharged and told to pay first.</div>
+<div class="lc-meta"><span class="badge badge-id">✓ Identified</span> <span>5 hours ago</span> <span>⬆ 89 support</span></div>
+</div>
+</div>
+<div class="live-card">
+<div class="lc-icon g">✅</div>
+<div>
+<div class="lc-label">Ministry Resolution Posted</div>
+<div class="lc-msg">3 staff disciplinary actions confirmed at Jaramogi GH, Kisumu following complaints.</div>
+<div class="lc-meta"><span class="badge badge-ministry">🏛 Ministry of Health</span> <span>Official</span></div>
+</div>
+</div>
+</div>
+</section>
+<!-- STATS -->
+<div class="stats-bar" id="home-stats">
+<div class="stat-item"><div class="stat-num" id="st-complaints">0</div><div class="stat-label">Complaints Filed</div></div>
+<div class="stat-item"><div class="stat-num">47</div><div class="stat-label">Counties Active</div></div>
+<div class="stat-item"><div class="stat-num" id="st-resolved">0</div><div class="stat-label">Cases Resolved</div></div>
+<div class="stat-item"><div class="stat-num" id="st-hospitals">0</div><div class="stat-label">Hospitals on Watch</div></div>
+<div class="stat-item"><div class="stat-num" id="st-donated">KSh 0</div><div class="stat-label">Donated to Patients</div></div>
+</div>
+<!-- FEATURES -->
+<div class="section-wrap">
+<div class="section-tag">Platform Capabilities</div>
+<h2 class="section-title">Everything accountability needs.</h2>
+<p class="section-sub">Patients, doctors, activists, and the Ministry — one platform for transparent, evidence-based healthcare accountability in all 47 counties.</p>
+<div class="grid-3">
+<div class="card" onclick="openModal('complaint-modal')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">🛡️</div>
+<div class="card-title">Anonymous & Safe</div>
+<div class="card-body">Stay completely anonymous or identify yourself. Protected under Kenya's Whistleblower Act. Zero IP logging on anonymous reports.</div>
+</div>
+<div class="card" onclick="openModal('complaint-modal')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">📹</div>
+<div class="card-title">Upload Evidence</div>
+<div class="card-body">Attach photos, videos, receipts, discharge letters — real proof that makes complaints impossible to ignore or dismiss.</div>
+</div>
+<div class="card" onclick="showPage('watchlist')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">🏥</div>
+<div class="card-title">Hospital Spotlight</div>
+<div class="card-body">Facilities with repeated violations are publicly listed. Full transparency. Ratings, complaint counts, response history.</div>
+</div>
+<div class="card" onclick="showPage('ministry')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">🏛️</div>
+<div class="card-title">Ministry Response Portal</div>
+<div class="card-body">Ministry posts official resolutions, disciplinary actions, and policy updates. No more "we didn't receive the notice."</div>
+</div>
+<div class="card" onclick="showPage('county')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">📊</div>
+<div class="card-title">County-Level Tracking</div>
+<div class="card-body">Health is devolved. All 47 counties tracked separately. County governors receive county-specific reports.</div>
+</div>
+<div class="card" onclick="showPage('donate')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">💸</div>
+<div class="card-title">Patient Support Fund</div>
+<div class="card-body">Donate via M-Pesa to patients stuck over hospital fees. 100% goes to the patient. Real names, real stories.</div>
+</div>
+<div class="card" onclick="openModal('complaint-modal')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">⚡</div>
+<div class="card-title">Emergency Escalation</div>
+<div class="card-body">Life-threatening neglect gets a red-flag routing to the Ministry emergency desk and media contacts within minutes.</div>
+</div>
+<div class="card" onclick="showPage('activism')" style="cursor:pointer">
+<div style="font-size:26px;margin-bottom:10px">✊</div>
+<div class="card-title">Lobby & Activism Board</div>
+<div class="card-body">Doctors post strike notices. Activists mobilise demos. Lobby groups serve formal petitions — all timestamped and public.</div>
+</div>
+<div class="card">
+<div style="font-size:26px;margin-bottom:10px">📱</div>
+<div class="card-title">SMS / USSD Access</div>
+<div class="card-body">No smartphone? Report via SMS to 21900 or USSD *384#. Every Kenyan can participate, not just those with data.</div>
+</div>
+</div>
+</div>
+<!-- WHO USES -->
+<div style="background:var(--surface);padding:48px 0">
+<div class="section-wrap" style="padding-top:0;padding-bottom:0">
+<div class="section-tag">Who Uses MED AID</div>
+<h2 class="section-title">Built for every Kenyan in healthcare.</h2>
+<div class="grid-4">
+<div class="card" style="text-align:center">
+<div style="font-size:36px;margin-bottom:10px">🤒</div>
+<div class="card-title">Patients & Families</div>
+<div class="card-body" style="font-size:13px">Report neglect, detention, overcharging. Get support from the community and Ministry response.</div>
+<button class="btn-primary" style="margin-top:14px;padding:9px 16px;font-size:13px" onclick="openModal('complaint-modal')">File Report</button>
+</div>
+<div class="card" style="text-align:center">
+<div style="font-size:36px;margin-bottom:10px">🩺</div>
+<div class="card-title">Doctors & Health Workers</div>
+<div class="card-body" style="font-size:13px">Post strike notices, report dangerous conditions, demand accountability from management.</div>
+<button class="btn-primary" style="margin-top:14px;padding:9px 16px;font-size:13px" onclick="showPage('activism')">Post Notice</button>
+</div>
+<div class="card" style="text-align:center">
+<div style="font-size:36px;margin-bottom:10px">🏛️</div>
+<div class="card-title">Ministry of Health</div>
+<div class="card-body" style="font-size:13px">Receive reports, post resolutions, demonstrate accountability to citizens. Dashboard access.</div>
+<button class="btn-primary" style="margin-top:14px;padding:9px 16px;font-size:13px;background:var(--black)" onclick="showPage('ministry')">Ministry Portal</button>
+</div>
+<div class="card" style="text-align:center">
+<div style="font-size:36px;margin-bottom:10px">📰</div>
+<div class="card-title">Media & Journalists</div>
+<div class="card-body" style="font-size:13px">Access verified public cases. Official complaint data for evidence-based health reporting.</div>
+<button class="btn-primary" style="margin-top:14px;padding:9px 16px;font-size:13px;background:var(--muted)" onclick="showPage('feed')">Browse Cases</button>
+</div>
+</div>
+</div>
+</div>
+<!-- MINISTRY BANNER -->
+<div class="min-banner">
+<div style="font-size:44px">🏛️</div>
+<div>
+<h3>Ministry of Health — Official Channel</h3>
+<p>The Ministry posts verified resolutions here. Every submission is timestamped and public. No institution can claim it never received a notice on this platform.</p>
+</div>
+<button class="min-btn" onclick="showPage('ministry')">View Ministry Updates →</button>
+</div>
+</div>
+
+<!-- ===== PAGE: COMPLAINTS FEED ===== -->
+<div class="page" id="page-feed">
+<div class="section-wrap">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:16px">
+<div>
+<div class="section-tag">Public Complaints Board</div>
+<h2 class="section-title" style="margin-bottom:4px">All Active Cases</h2>
+<p style="font-size:13.5px;color:var(--muted)">Real complaints from real Kenyans. Filter by category or county.</p>
+</div>
+<button class="btn-primary" style="width:auto;padding:11px 22px" onclick="openModal('complaint-modal')">＋ File New Complaint</button>
+</div>
+<div class="search-bar">
+<input class="search-input" id="feed-search" type="text" placeholder="Search complaints by hospital, county, or keyword..." oninput="renderFeed()">
+<button class="btn-secondary" onclick="openModal('track-modal')">🔍 Track Case</button>
+</div>
+<div class="filters" id="feed-filters">
+<button class="filter-btn active" onclick="setFilter('feed','all',this)">All</button>
+<button class="filter-btn" onclick="setFilter('feed','Doctor / Staff Absenteeism',this)">Absenteeism</button>
+<button class="filter-btn" onclick="setFilter('feed','Insurance Overcharging',this)">Insurance</button>
+<button class="filter-btn" onclick="setFilter('feed','Discharge Detention (Unpaid Fees)',this)">Detention</button>
+<button class="filter-btn" onclick="setFilter('feed','Patient Neglect or Mistreatment',this)">Neglect</button>
+<button class="filter-btn" onclick="setFilter('feed','Drug / Equipment Shortage',this)">Drug Shortage</button>
+<button class="filter-btn" onclick="setFilter('feed','Emergency Neglect',this)">🚨 Emergency</button>
+<button class="filter-btn" onclick="setFilter('feed','Resolved',this)">✅ Resolved</button>
+</div>
+<div id="feed-list"></div>
+</div>
+</div>
+
+<!-- ===== PAGE: HOSPITAL WATCHLIST ===== -->
+<div class="page" id="page-watchlist">
+<div style="background:var(--black);color:#fff;padding:40px 48px">
+<div class="section-tag" style="color:#F9A825">Hospital Watch</div>
+<h1 class="section-title" style="color:#fff;margin-bottom:6px">Facilities Under Scrutiny</h1>
+<p style="font-size:14px;opacity:.65;max-width:540px">Hospitals and clinics with repeated complaint records. Ranked by number of unresolved complaints. Facilities can respond and rebut via their portal.</p>
+</div>
+<div class="section-wrap">
+<div class="filters">
+<button class="filter-btn active" onclick="setFilter('watch','all',this)">All Counties</button>
+<button class="filter-btn" onclick="setFilter('watch','Nairobi',this)">Nairobi</button>
+<button class="filter-btn" onclick="setFilter('watch','Mombasa',this)">Mombasa</button>
+<button class="filter-btn" onclick="setFilter('watch','Kisumu',this)">Kisumu</button>
+<button class="filter-btn" onclick="setFilter('watch','Nakuru',this)">Nakuru</button>
+</div>
+<div id="watchlist-container" class="grid-2"></div>
+</div>
+</div>
+
+<!-- ===== PAGE: COUNTIES ===== -->
+<div class="page" id="page-county">
+<div style="background:var(--green);color:#fff;padding:40px 48px">
+<div class="section-tag" style="color:#A3E4A3">47 Counties</div>
+<h1 class="section-title" style="color:#fff;margin-bottom:6px">County Health Accountability</h1>
+<p style="font-size:14px;opacity:.75;max-width:580px">Health is a devolved function under the 2010 Constitution. Complaints are tracked per county and shared with both the Ministry of Health and County Health Executives.</p>
+</div>
+<div class="section-wrap">
+<div class="county-grid" id="county-grid"></div>
+<div id="county-detail" style="margin-top:28px;display:none">
+<h3 class="section-title" id="county-detail-title" style="margin-bottom:16px"></h3>
+<div id="county-detail-feed"></div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: DONATE ===== -->
+<div class="page" id="page-donate">
+<div style="background:var(--green);color:#fff;padding:40px 48px">
+<div class="section-tag" style="color:#A3E4A3">Patient Support Fund</div>
+<h1 class="section-title" style="color:#fff;margin-bottom:6px">Help Patients Who Can't Pay</h1>
+<p style="font-size:14px;opacity:.75;max-width:580px">Some patients are detained in hospitals over unpaid bills or discharged without treatment. Your M-Pesa donation goes 100% to the patient. No fees, no deductions.</p>
+</div>
+<div class="section-wrap">
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('donate','active')">Active Appeals</button>
+<button class="tab-btn" onclick="switchTab('donate','completed')">Completed</button>
+</div>
+<div class="tab-panel active" id="donate-tab-active">
+<div class="grid-3" id="donate-cards"></div>
+</div>
+<div class="tab-panel" id="donate-tab-completed">
+<div class="grid-3" id="donate-completed"></div>
+</div>
+</div>
+</div>
+
+<!-- ===== PAGE: ACTIVISM ===== -->
+<div class="page" id="page-activism">
+<div style="background:#1a1a1a;color:#fff;padding:40px 48px">
+<div class="section-tag" style="color:#F9A825">Activism & Labour Board</div>
+<h1 class="section-title" style="color:#fff;margin-bottom:6px">Notices, Strikes & Lobby Actions</h1>
+<p style="font-size:14px;opacity:.65;max-width:580px">Doctors, activists, and lobby groups post formal notices here. Timestamped and publicly visible. The Ministry cannot deny receiving this information.</p>
+</div>
+<div class="section-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+<div class="filters" style="margin:0">
+<button class="filter-btn active" onclick="setFilter('activism','all',this)">All</button>
+<button class="filter-btn" onclick="setFilter('activism','Strike',this)">Strike Notices</button>
+<button class="filter-btn" onclick="setFilter('activism','Demonstration',this)">Demos</button>
+<button class="filter-btn" onclick="setFilter('activism','Petition',this)">Petitions</button>
+</div>
+<button class="btn-primary" style="width:auto;padding:10px 20px" onclick="openModal('activism-modal')">＋ Post Notice</button>
+</div>
+<div id="activism-list"></div>
+</div>
+</div>
+
+<!-- ===== PAGE: MINISTRY ===== -->
+<div class="page" id="page-ministry">
+<div class="ministry-header">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+<span style="font-size:32px">🏛️</span>
+<div>
+<h1 style="font-family:var(--font-d);font-size:26px;font-weight:900;margin-bottom:2px">Ministry of Health — Official Portal</h1>
+<p style="font-size:13px;opacity:.6">Kenya | Afya Bora kwa Wote</p>
+</div>
+<span class="admin-badge" style="margin-left:auto">VERIFIED OFFICIAL</span>
+</div>
+<div class="grid-4" id="ministry-stats">
+<div class="ministry-stat"><div class="ministry-stat-num" id="ms-total">0</div><div class="ministry-stat-label">Total Complaints</div></div>
+<div class="ministry-stat"><div class="ministry-stat-num" id="ms-new">0</div><div class="ministry-stat-label">New (This Week)</div></div>
+<div class="ministry-stat"><div class="ministry-stat-num" id="ms-resolved">0</div><div class="ministry-stat-label">Resolved</div></div>
+<div class="ministry-stat"><div class="ministry-stat-num" id="ms-emergency">0</div><div class="ministry-stat-label">Emergency Cases</div></div>
+</div>
+</div>
+<div class="section-wrap">
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('ministry','resolutions')">Official Resolutions</button>
+<button class="tab-btn" onclick="switchTab('ministry','pending')">Pending Cases</button>
+<button class="tab-btn" onclick="switchTab('ministry','stats')">Statistics</button>
+</div>
+<div class="tab-panel active" id="ministry-tab-resolutions">
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+<button class="btn-primary" style="width:auto;padding:10px 20px;background:var(--black)" onclick="openModal('resolution-modal')">＋ Post Resolution</button>
+</div>
+<div id="resolutions-list"></div>
+</div>
+<div class="tab-panel" id="ministry-tab-pending">
+<div id="pending-list"></div>
+</div>
+<div class="tab-panel" id="ministry-tab-stats">
+<div class="grid-3" style="margin-bottom:24px" id="stats-breakdown"></div>
+<h3 style="font-weight:700;margin-bottom:14px;font-size:15px">Complaints by County (Top 10)</h3>
+<div id="county-chart"></div>
+</div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer id="site-footer">
+<div class="foot-brand">
+<h3>MED AID Kenya</h3>
+<p>A civic accountability platform bridging patients, health workers, and the Ministry of Health through transparency, evidence, and decisive action across all 47 counties.</p>
+<div style="display:flex;gap:5px;margin-top:14px">
+<div style="width:22px;height:13px;background:var(--red);border-radius:2px"></div>
+<div style="width:22px;height:13px;background:#1a1a1a;border-radius:2px;border:1px solid rgba(255,255,255,.1)"></div>
+<div style="width:22px;height:13px;background:var(--green);border-radius:2px"></div>
+</div>
+<p style="font-size:11.5px;margin-top:10px;opacity:.5">SMS: 21900 | USSD: *384# | Email: complaints@medaid.ke</p>
+</div>
+<div class="foot-col">
+<h4>For Citizens</h4>
+<span class="foot-link" onclick="openModal('complaint-modal')">File a Complaint</span>
+<span class="foot-link" onclick="openModal('track-modal')">Track My Case</span>
+<span class="foot-link" onclick="showPage('donate')">Donate to Patients</span>
+<span class="foot-link" onclick="showPage('county')">County Reports</span>
+<span class="foot-link" onclick="showPage('watchlist')">Hospital Watch List</span>
+</div>
+<div class="foot-col">
+<h4>For Professionals</h4>
+<span class="foot-link" onclick="showPage('activism')">Strike Notice Board</span>
+<span class="foot-link" onclick="showPage('activism')">Lobby Platform</span>
+<span class="foot-link" onclick="showPage('feed')">Media / Press Access</span>
+<span class="foot-link">Hospital Rebuttal Portal</span>
+</div>
+<div class="foot-col">
+<h4>Ministry & Gov</h4>
+<span class="foot-link" onclick="showPage('ministry')">Ministry Dashboard</span>
+<span class="foot-link" onclick="openModal('resolution-modal')">Post Resolution</span>
+<span class="foot-link" onclick="showPage('county')">County Executive Portal</span>
+<span class="foot-link" onclick="showPage('ministry')">Statistics & Analytics</span>
+</div>
+</footer>
+<div class="foot-bottom">
+<span>© 2026 MED AID Kenya — Health Accountability Platform
+<span class="foot-flag"><span style="width:18px;background:var(--red)"></span><span style="width:10px;background:#1a1a1a;border:1px solid rgba(255,255,255,.15)"></span><span style="width:18px;background:var(--green)"></span></span>
+</span>
+<span>Whistleblower Protection · Privacy Policy · Terms of Use</span>
+</div>
+
+<script>
+// ===== DATA STORE =====
+let DB = {
+  complaints: [
+    {id:'MED-2026-0892',category:'Doctor / Staff Absenteeism',facility:'Kenyatta National Hospital',county:'Nairobi',desc:'The paediatric ward had no doctor on duty for over 6 hours on Wednesday morning. There were more than 40 children and their guardians waiting. Nurses were overwhelmed and unable to provide medical care. A child with a high fever was left unattended. When I asked the nurse, she said the doctor had not come in and they could not reach him.',date:'2026-03-20',anon:true,name:'',contact:'',emergency:false,upvotes:47,comments:[{author:'Concerned Parent',text:'This happened to my child too last month. Same ward, same story.',time:'2 days ago',avatar:'👩'},{author:'KNH Staff (Anon)',text:'Management is aware but refuses to enforce attendance. We are tired of covering up.',time:'1 day ago',avatar:'👨‍⚕️'}],files:[],status:'inreview',response:'',voted:false,donated:0},
+    {id:'MED-2026-0891',category:'Insurance Overcharging',facility:'Mombasa Coast General Hospital',county:'Mombasa',desc:'I have a valid NHIF card covering my husband\'s admission for malaria treatment. The hospital\'s accounts department demanded Ksh 45,000 in cash before they would release him and let the NHIF process. They said NHIF does not cover all costs but refused to show us an itemised bill. My husband was detained for 3 days over this. We had to borrow money from family.',date:'2026-03-19',anon:false,name:'Fatuma Abdallah',contact:'0712345678',emergency:false,upvotes:89,comments:[{author:'NHIF Watch Kenya',text:'This is systematic. Coast General does this routinely. Complaint filed with NHIF board already.',time:'3 days ago',avatar:'📋'}],files:['Receipt_Hospital_March2026.pdf','NHIF_Card_Scan.jpg'],status:'escalated',response:'Ministry has contacted NHIF and Coast General management. Investigation opened. Reference: MOH/INS/2026/087',voted:false,donated:0},
+    {id:'MED-2026-0890',category:'Patient Neglect or Mistreatment',facility:'Pumwani Maternity Hospital',county:'Nairobi',desc:'My wife was in labour for 11 hours. No midwife attended to her for the last 4 hours of labour. When I went to call for help, I was told rudely to wait outside. My wife gave birth almost unassisted while a nurse was on her phone nearby. The baby needed resuscitation which was delayed by nearly 10 minutes. The baby survived but we were traumatised.',date:'2026-03-18',anon:false,name:'James Wafula',contact:'0723456789',emergency:true,upvotes:234,comments:[{author:'Dr. A. Kamau',text:'This is obstetric negligence. This case should be reported to the Kenya Medical Practitioners Board.',time:'4 days ago',avatar:'👨‍⚕️'},{author:'Anonymous Mother',text:'Same thing happened to me at Pumwani 2 months ago. Glad someone is speaking up.',time:'3 days ago',avatar:'👩'},{author:'Maternal Health Kenya NGO',text:'We are documenting this case. Please contact us at 0800720601 for legal support.',time:'2 days ago',avatar:'🏥'}],files:['Hospital_Admission_Record.jpg'],status:'escalated',response:'Ministry has escalated to Nairobi County Health Executive and Kenya Medical Practitioners Board. Formal investigation underway.',voted:false,donated:0},
+    {id:'MED-2026-0889',category:'Drug / Equipment Shortage',facility:'Kisumu County Referral Hospital',county:'Kisumu',desc:'The hospital has had no insulin available for diabetic patients for 3 weeks. Patients are being told to buy insulin from private chemists at their own cost — some at Ksh 3,500 per vial. Poor patients cannot afford this and are going untreated. I spoke to the pharmacy and they said the procurement department has not ordered stock.',date:'2026-03-17',anon:true,name:'',contact:'',emergency:false,upvotes:156,comments:[{author:'Dr. Grace Otieno',text:'KEMSA supply chain failure. This is a national issue not just Kisumu. 17 counties have reported the same.',time:'5 days ago',avatar:'👩‍⚕️'}],files:[],status:'new',response:'',voted:false,donated:0},
+    {id:'MED-2026-0888',category:'Discharge Detention (Unpaid Fees)',facility:'Naivasha Sub-County Hospital',county:'Nakuru',desc:'My mother was kept in the hospital for 8 days after being declared medically fit for discharge because she could not pay her bill of Ksh 18,000. She is 68 years old. The hospital locked her ward and told her she cannot leave until payment is made. This is illegal under Kenyan law but the hospital does not care.',date:'2026-03-16',anon:false,name:'Peter Njoroge',contact:'0734567890',emergency:false,upvotes:112,comments:[{author:'Legal Aid Kenya',text:'Under Section 36 of the Health Act, detaining a patient over fees is ILLEGAL. Please call 0800724466 for free legal help.',time:'6 days ago',avatar:'⚖️'}],files:['Mothers_Discharge_Order.jpg','Hospital_Bill.pdf'],status:'resolved',response:'Nakuru County Health Executive has ordered the immediate release of all detained patients at Naivasha Sub-County Hospital. Hospital administrator issued formal warning. Patient has been released.',voted:false,donated:0},
+    {id:'MED-2026-0887',category:'Insurance Overcharging',facility:'Aga Khan University Hospital',county:'Nairobi',desc:'I have SHA insurance through my employer. The hospital insisted on a Ksh 80,000 deposit before admitting me for a planned procedure despite my insurance covering 100% of the costs. When I showed them my insurance documents, they said they could not confirm with the insurer until the next business day and required the deposit in the meantime. This is a rich people\'s hospital but even rich people should not be exploited.',date:'2026-03-15',anon:false,name:'Miriam Omondi',contact:'0745678901',emergency:false,upvotes:78,comments:[],files:[],status:'inreview',response:'',voted:false,donated:0},
+  ],
+  resolutions: [
+    {id:'RES-2026-034',complaint:'MED-2026-0890',title:'Pumwani Maternity Hospital — Obstetric Negligence Investigation',body:'Following multiple complaints received regarding maternity care standards at Pumwani Maternity Hospital, the Ministry of Health has taken the following actions: (1) Formal investigation launched by the Kenya Medical Practitioners and Dentists Council. (2) Nairobi County Health Executive directed to conduct unannounced inspection. (3) All nursing staff on duty during reported incidents placed on administrative review. (4) Hospital Chief Nursing Officer summoned for disciplinary hearing scheduled for 28 March 2026.',type:'Investigation Launched',date:'2026-03-21',officer:'CS Health — Hon. Dr. S. Mutuku'},
+    {id:'RES-2026-033',complaint:'MED-2026-0888',title:'Patient Detention at Naivasha Sub-County Hospital — Immediate Release Ordered',body:'This Ministry has received and verified complaints of illegal patient detention at Naivasha Sub-County Hospital, Nakuru County. Under Section 36 of the Health Act 2017, no hospital may detain a patient on grounds of non-payment of fees. The following actions have been taken: (1) Hospital administrator formally warned. (2) All currently detained patients immediately released. (3) Nakuru County Health Executive directed to conduct county-wide audit of detention practices. (4) Matter referred to DPP for prosecution if further violations occur.',type:'Disciplinary Action Taken',date:'2026-03-20',officer:'Director of Health Services'},
+    {id:'RES-2026-032',complaint:'MED-2026-0891',title:'NHIF Overcharging at Coast General Hospital',body:'The Ministry of Health in collaboration with the Social Health Authority (SHA/NHIF) has launched a formal audit of billing practices at Mombasa Coast General Hospital following documented complaints of insurance overcharging. Patients who were billed out-of-pocket amounts inconsistent with their insurance cover between January and March 2026 are encouraged to submit their receipts to SHA offices for reimbursement review.',type:'Insurance Probe Initiated',date:'2026-03-19',officer:'SHA Director — Ms. A. Mwangi'},
+  ],
+  activism: [
+    {type:'Doctor / Health Worker Strike Notice',org:'Kenya Medical Practitioners, Pharmacists and Dentists Union (KMPDU)',title:'7-Day Strike Notice — Full Industrial Action from 1 April 2026',body:'KMPDU hereby serves formal 7-day strike notice effective today, 22 March 2026. Industrial action shall commence at 00:01 hours on 1 April 2026 unless the Government of Kenya honours the 2017 CBA which remains 89% unimplemented. Key demands: (1) Full implementation of salary structures. (2) Provision of medical malpractice insurance for all public doctors. (3) Deployment of 3,000 doctors to understaffed counties. (4) Posting of all intern doctors within 30 days of graduation. Emergency services shall be maintained.',date:'2026-03-22',actionDate:'2026-04-01',files:['KMPDU_Strike_Notice_Signed.pdf'],supports:1456,supported:false},
+    {type:'Planned Demonstration',org:'Beba Mzigo Activists',title:'Peaceful March to Ministry of Health Headquarters — 29 March 2026',body:'We are calling on all concerned Kenyans to join us for a peaceful march from Uhuru Park to the Ministry of Health headquarters on Upper Hill on 29 March 2026 at 10:00 AM. Our demands: End illegal patient detention in all public hospitals. Full SHA implementation. Accountability for hospital drug theft. Stop misuse of county health budgets. Bring identification. This is a lawful assembly under Article 37 of the Constitution.',date:'2026-03-21',actionDate:'2026-03-29',files:[],supports:3892,supported:false},
+    {type:'Lobby Group Petition',org:'Nurses Association of Kenya (NAK)',title:'Petition: Staffing Crisis at Level 4 and 5 Hospitals',body:'NAK presents this petition to the Cabinet Secretary for Health and all 47 County Health Executives. Public health facilities are operating at 40% staffing capacity due to delays in employment and deployment. The nurse-to-patient ratio in most wards is 1:80 against the WHO recommended 1:6. We demand: (1) Immediate employment of 5,000 qualified nurses on payroll. (2) Rural hardship allowance implementation. (3) End to unpaid internship placements.',date:'2026-03-18',actionDate:'2026-03-31',files:['NAK_Petition_Signed.pdf','Staffing_Data_2026.xlsx'],supports:2341,supported:false},
+  ],
+  donations: [
+    {id:'DON-001',name:'Mama Grace Wanjiku',age:64,county:'Kiambu',story:'Held at Thika Level 5 Hospital for 3 weeks after total hip replacement. Hospital bill: Ksh 87,000. Family has already paid Ksh 50,000. Needs Ksh 37,000 to be released.',target:37000,raised:28500,avatar:'👵',completed:false,complaintId:'MED-2026-0871'},
+    {id:'DON-002',name:'Baby Amani Ochieng (4 months)',age:0,county:'Kisumu',story:'Admitted for malnutrition and chest infection. Mother is a single parent, domestic worker. Hospital bill: Ksh 22,000. Mother cannot leave work or she loses her job.',target:22000,raised:19800,avatar:'👶',completed:false,complaintId:''},
+    {id:'DON-003',name:'Hassan Aden (32)',age:32,county:'Garissa',story:'Road accident victim. Three broken limbs. Hospital cost Ksh 145,000. No insurance. Family is nomadic pastoralist, sold livestock to raise Ksh 60,000. Still needs Ksh 85,000.',target:85000,raised:61200,avatar:'🧑',completed:false,complaintId:''},
+    {id:'DON-004',name:'Joyce Kamau (28, new mother)',age:28,county:'Nakuru',story:'Delivered twins at Nakuru PGH. Both babies healthy but Joyce is being held over Ksh 14,500 maternity bill. Husband is a boda boda rider. Has raised Ksh 6,000.',target:14500,raised:12400,avatar:'👩',completed:false,complaintId:''},
+    {id:'DON-005',name:'Mzee Kariuki (78)',age:78,county:'Murang\'a',story:'Diabetic complications required amputation. Discharged medically but cannot leave. Bill of Ksh 56,000. Sons are tea pickers. Family needs Ksh 31,000 more.',target:56000,raised:25000,avatar:'👴',completed:false,complaintId:''},
+    {id:'DON-COMP-001',name:'Sarah Muthoni (19)',age:19,county:'Nyeri',story:'Appendicitis surgery. Community fundraised Ksh 45,000 in 72 hours on MED AID. Discharged and recovering well.',target:45000,raised:45000,avatar:'👩‍🎓',completed:true,complaintId:''},
+  ],
+  currentFilter:{feed:'all',watch:'all',activism:'all'},
+  currentDonateTarget: null
+};
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  let nb = document.getElementById('nb-'+name);
+  if(nb) nb.classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='feed') renderFeed();
+  if(name==='watchlist') renderWatchlist();
+  if(name==='county') renderCounty();
+  if(name==='donate') renderDonate();
+  if(name==='activism') renderActivism();
+  if(name==='ministry') renderMinistry();
+  // hide footer on ministry
+  document.getElementById('site-footer').style.display = name==='ministry' ? 'none' : 'grid';
+  document.querySelector('.foot-bottom').style.display = name==='ministry' ? 'none' : 'flex';
+}
+
+// ===== MODALS =====
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden'}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow=''}
+
+// ===== TOAST =====
+function toast(msg,dur=3200){let t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
+
+// ===== COMPLAINT MODAL LOGIC =====
+let isAnon=true,isEmerg=false,attachedFiles=[];
+function setAnon(v){
+  isAnon=v;
+  document.getElementById('opt-anon').className='radio-opt'+(v?' sel-anon':'');
+  document.getElementById('opt-id').className='radio-opt'+(v?'':' sel-id');
+  document.getElementById('id-fields').style.display=v?'none':'block';
+}
+function setEmerg(v){
+  isEmerg=v;
+  let yes=document.getElementById('emerg-yes'),no=document.getElementById('emerg-no');
+  if(v){yes.style.background='#BB0000';yes.style.color='#fff';no.style.background='';no.style.color=''}
+  else{no.style.background='#EFF7EE';no.style.color='var(--green)';yes.style.background='#FEF0F0';yes.style.color='var(--red)'}
+}
+function addFiles(inp){
+  Array.from(inp.files).forEach(f=>{attachedFiles.push(f.name);renderFiles()});
+}
+function renderFiles(){
+  let fl=document.getElementById('file-list');
+  fl.innerHTML=attachedFiles.map((f,i)=>`<div class="file-tag">📎 ${f}<button onclick="removeFile(${i})">✕</button></div>`).join('');
+}
+function removeFile(i){attachedFiles.splice(i,1);renderFiles()}
+
+function genId(){return 'MED-2026-'+String(Math.floor(1000+Math.random()*8999))}
+function now(){let d=new Date();return d.toLocaleDateString('en-KE',{day:'numeric',month:'short',year:'numeric'})}
+
+function submitComplaint(){
+  let cat=document.getElementById('c-category').value;
+  let fac=document.getElementById('c-facility').value.trim();
+  let cty=document.getElementById('c-county').value;
+  let desc=document.getElementById('c-desc').value.trim();
+  if(!cat||!fac||!cty||!desc){toast('⚠️ Please fill in all required fields');return}
+  let id=genId();
+  let nm=isAnon?'':(document.getElementById('c-name').value.trim()||'');
+  let co=isAnon?'':(document.getElementById('c-contact').value.trim()||'');
+  let cdate=document.getElementById('c-date').value||now();
+  DB.complaints.unshift({id,category:cat,facility:fac,county:cty,desc,date:cdate,anon:isAnon,name:nm,contact:co,emergency:isEmerg,upvotes:0,comments:[],files:[...attachedFiles],status:'new',response:'',voted:false,donated:0});
+  attachedFiles=[];renderFiles();
+  closeModal('complaint-modal');
+  ['c-category','c-county','c-facility','c-desc','c-date','c-name','c-contact'].forEach(id=>{let el=document.getElementById(id);if(el)el.value=''});
+  setAnon(true);setEmerg(false);
+  updateStats();
+  // Show tracking number
+  let msg=`✅ Complaint submitted! Your tracking number: ${id}`;
+  if(isEmerg) msg='🚨 EMERGENCY complaint filed and escalated! Tracking: '+id;
+  toast(msg,6000);
+  // If viewing feed, refresh
+  if(document.getElementById('page-feed').classList.contains('active')) renderFeed();
+}
+
+// ===== FEED =====
+let feedFilter='all';
+function setFilter(area,val,btn){
+  DB.currentFilter[area]=val;
+  let parent=btn.parentElement;
+  parent.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(area==='feed') renderFeed();
+  if(area==='watch') renderWatchlist();
+  if(area==='activism') renderActivism();
+}
+function renderFeed(){
+  let list=document.getElementById('feed-list');
+  let q=(document.getElementById('feed-search')||{value:''}).value.toLowerCase();
+  let f=DB.currentFilter.feed;
+  let filtered=DB.complaints.filter(c=>{
+    if(f==='Resolved') return c.status==='resolved';
+    if(f!=='all'&&c.category!==f) return false;
+    if(q&&!c.desc.toLowerCase().includes(q)&&!c.facility.toLowerCase().includes(q)&&!c.county.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if(!filtered.length){list.innerHTML='<div class="empty-state"><span class="es-icon">📋</span><p>No complaints found for this filter. Be the first to report.</p></div>';return}
+  list.innerHTML=filtered.map(c=>complaintCardHTML(c)).join('');
+}
+
+function complaintCardHTML(c,mini=false){
+  let statusBadge={new:'badge-new',inreview:'badge-inreview',resolved:'badge-resolved',escalated:'badge-escalated'}[c.status]||'badge-new';
+  let statusText={new:'New',inreview:'Under Review',resolved:'✅ Resolved',escalated:'🚨 Escalated'}[c.status]||'New';
+  let filesHTML=c.files.length?'<div style="margin-top:8px">'+c.files.map(f=>`<span class="evidence-item">📎 ${f}</span>`).join('')+'</div>':'';
+  let responseHTML=c.response?`<div class="response-box"><div class="rb-header">🏛 Ministry of Health Response</div><div class="rb-text">${c.response}</div></div>`:'';
+  let commentsHTML=!mini?`
+    <div class="comments-section">
+      ${c.comments.map(cm=>`<div class="comment-item"><div class="comment-avatar">${cm.avatar||'👤'}</div><div class="comment-content"><div class="comment-author">${cm.author}</div><div class="comment-text">${cm.text}</div><div class="comment-time">${cm.time}</div></div></div>`).join('')}
+      <div class="comment-input-wrap">
+        <input class="comment-input" id="ci-${c.id}" type="text" placeholder="Add a comment..." onkeydown="if(event.key==='Enter')addComment('${c.id}')">
+        <button class="comment-submit" onclick="addComment('${c.id}')">Post</button>
+      </div>
+    </div>`:'';
+  return `<div class="card mb-16" id="card-${c.id}" style="border-left:3px solid ${c.emergency?'var(--red)':'var(--border)'};margin-bottom:16px">
+    ${c.emergency?'<div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">🚨 EMERGENCY / LIFE-THREATENING — ESCALATED</div>':''}
+    <div class="card-meta">
+      <span class="badge ${statusBadge}">${statusText}</span>
+      <span class="badge ${c.anon?'badge-anon':'badge-id'}">${c.anon?'🛡 Anonymous':'✓ '+c.name}</span>
+      <span style="font-size:12px;color:var(--muted)">${c.county} · ${c.facility}</span>
+      <span style="font-size:12px;color:var(--muted);margin-left:auto">${c.id} · ${c.date}</span>
+    </div>
+    <div class="card-title">${c.category}</div>
+    <div class="card-body">${c.desc.length>320?c.desc.substring(0,320)+'...':c.desc}</div>
+    ${filesHTML}
+    ${responseHTML}
+    <div class="card-footer">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="upvote-btn${c.voted?' voted':''}" onclick="upvote('${c.id}')">▲ ${c.upvotes} Support</button>
+        ${!mini?`<button class="comment-btn" onclick="toggleComments('${c.id}')">💬 ${c.comments.length} Comment${c.comments.length!==1?'s':''}</button>`:''}
+      </div>
+      <div style="display:flex;gap:8px">
+        ${c.status!=='resolved'?`<button class="btn-secondary" style="padding:6px 12px;font-size:12px" onclick="showPage('donate')">💚 Help Patient</button>`:''}
+        ${c.status==='new'||c.status==='inreview'?`<button class="btn-secondary" style="padding:6px 12px;font-size:12px;background:var(--black);color:#fff;border-color:var(--black)" onclick="openModal('resolution-modal');document.getElementById('r-id').value='${c.id}'">🏛 Respond</button>`:''}
+      </div>
+    </div>
+    ${commentsHTML}
+  </div>`;
+}
+
+function upvote(id){
+  let c=DB.complaints.find(x=>x.id===id);
+  if(!c) return;
+  if(c.voted){c.upvotes--;c.voted=false;toast('Support removed')}
+  else{c.upvotes++;c.voted=true;toast('✅ Support added — your voice counts')}
+  // re-render visible pages
+  if(document.getElementById('page-feed').classList.contains('active')) renderFeed();
+  if(document.getElementById('page-county').classList.contains('active')) renderCountyDetail();
+}
+
+function toggleComments(id){
+  let cs=document.querySelector(`#card-${id} .comments-section`);
+  if(cs) cs.style.display=cs.style.display==='none'?'block':'none';
+}
+
+function addComment(id){
+  let inp=document.getElementById('ci-'+id);
+  if(!inp||!inp.value.trim()) return;
+  let c=DB.complaints.find(x=>x.id===id);
+  if(!c) return;
+  c.comments.push({author:'You (Anonymous)',text:inp.value.trim(),time:'Just now',avatar:'🧑'});
+  inp.value='';
+  toast('💬 Comment posted');
+  if(document.getElementById('page-feed').classList.contains('active')) renderFeed();
+  let el=document.getElementById('ci-'+id);
+  if(el) setTimeout(()=>{el.closest('.card').querySelector('.comments-section').style.display='block'},100);
+}
+
+// ===== WATCHLIST =====
+function renderWatchlist(){
+  let f=DB.currentFilter.watch;
+  // Build hospital data from complaints
+  let hospitals={};
+  DB.complaints.forEach(c=>{
+    if(!hospitals[c.facility]) hospitals[c.facility]={name:c.facility,county:c.county,count:0,unresolved:0,categories:{}};
+    hospitals[c.facility].count++;
+    if(c.status!=='resolved') hospitals[c.facility].unresolved++;
+    hospitals[c.facility].categories[c.category]=(hospitals[c.facility].categories[c.category]||0)+1;
+  });
+  let sorted=Object.values(hospitals).sort((a,b)=>b.unresolved-a.unresolved);
+  if(f!=='all') sorted=sorted.filter(h=>h.county===f);
+  let max=sorted[0]?.count||1;
+  let cont=document.getElementById('watchlist-container');
+  if(!sorted.length){cont.innerHTML='<div class="empty-state"><span class="es-icon">🏥</span><p>No hospitals on watchlist for this filter.</p></div>';return}
+  cont.innerHTML=sorted.map((h,i)=>`
+    <div class="hospital-card">
+      <div class="hosp-rank">${i+1}</div>
+      <div style="flex:1">
+        <div class="hosp-name">${h.name}</div>
+        <div class="hosp-county">📍 ${h.county} County · ${h.count} complaint${h.count!==1?'s':''} · ${h.unresolved} unresolved</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">
+          ${Object.entries(h.categories).map(([cat,n])=>`<span class="badge badge-new">${cat} (${n})</span>`).join('')}
+        </div>
+        <div class="hosp-bar"><div class="hosp-fill" style="width:${Math.round(h.count/max*100)}%"></div></div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:4px">${h.unresolved} of ${h.count} complaints unresolved — ${Math.round(h.unresolved/h.count*100)}% unresolved rate</div>
+      </div>
+    </div>`).join('');
+}
+
+// ===== COUNTY =====
+let allCounties=['Nairobi','Mombasa','Kisumu','Nakuru','Kiambu','Meru','Kilifi','Kakamega','Machakos','Uasin Gishu','Nyeri','Bungoma','Murang\'a','Kajiado','Trans Nzoia','Siaya','Homa Bay','Migori','Kericho','Bomet','Nandi','Laikipia','Vihiga','Busia','Nyamira','Kisii','Embu','Kitui','Makueni','Tharaka Nithi','Nyandarua','Kirinyaga','Elgeyo Marakwet','West Pokot','Baringo','Samburu','Isiolo','Marsabit','Mandera','Wajir','Garissa','Tana River','Lamu','Taita Taveta','Kwale','Turkana','Narok'];
+let selectedCounty='Nairobi';
+function renderCounty(){
+  let counts={};
+  DB.complaints.forEach(c=>{counts[c.county]=(counts[c.county]||0)+1});
+  let grid=document.getElementById('county-grid');
+  grid.innerHTML=allCounties.map(cn=>`
+    <div class="county-pill${cn===selectedCounty?' active':''}" onclick="selectCounty('${cn}')">
+      <span class="county-count">${counts[cn]||0}</span>${cn}
+    </div>`).join('');
+  renderCountyDetail();
+}
+function selectCounty(cn){
+  selectedCounty=cn;
+  renderCounty();
+}
+function renderCountyDetail(){
+  let complaints=DB.complaints.filter(c=>c.county===selectedCounty);
+  let det=document.getElementById('county-detail');
+  det.style.display='block';
+  document.getElementById('county-detail-title').textContent=`${selectedCounty} County — ${complaints.length} Complaint${complaints.length!==1?'s':''}`;
+  let feed=document.getElementById('county-detail-feed');
+  if(!complaints.length){feed.innerHTML='<div class="empty-state"><span class="es-icon">✅</span><p>No complaints on record for '+selectedCounty+' county yet.</p></div>';return}
+  feed.innerHTML=complaints.map(c=>complaintCardHTML(c,true)).join('');
+}
+
+// ===== DONATE =====
+function renderDonate(){
+  let active=DB.donations.filter(d=>!d.completed);
+  let completed=DB.donations.filter(d=>d.completed);
+  document.getElementById('donate-cards').innerHTML=active.map(d=>donateCardHTML(d)).join('');
+  document.getElementById('donate-completed').innerHTML=completed.map(d=>donateCardHTML(d,true)).join('');
+}
+function donateCardHTML(d,done=false){
+  let pct=Math.min(100,Math.round(d.raised/d.target*100));
+  return `<div class="donate-card">
+    <div class="donate-patient">
+      <div class="donate-avatar">${d.avatar}</div>
+      <div><div class="donate-name">${d.name}</div><div style="font-size:11.5px;color:var(--muted)">📍 ${d.county} County</div></div>
+    </div>
+    <div class="card-body" style="font-size:13px">${d.story}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">
+      <span>KSh ${d.raised.toLocaleString()} raised</span>
+      <span>${pct}% of KSh ${d.target.toLocaleString()}</span>
+    </div>
+    ${done?'<div style="text-align:center;padding:10px;font-size:13px;color:var(--green);font-weight:700;border-radius:8px;background:#EFF7EE;margin-top:10px">✅ Fully Funded — Patient Released</div>':
+    `<button class="donate-btn" onclick="openDonate('${d.id}')">💚 Donate via M-Pesa</button>`}
+  </div>`;
+}
+function openDonate(id){
+  let d=DB.donations.find(x=>x.id===id);
+  if(!d) return;
+  DB.currentDonateTarget=id;
+  document.getElementById('dm-title').textContent='Support '+d.name;
+  document.getElementById('dm-story').textContent=d.story;
+  openModal('donate-modal');
+}
+let donateAmt=0;
+function setDonateAmt(v,el){
+  donateAmt=v;
+  document.querySelectorAll('#donate-modal .radio-opt').forEach(e=>e.className='radio-opt');
+  el.className='radio-opt sel-anon';
+  document.getElementById('donate-amount').value=v;
+}
+function processDonate(){
+  let amt=parseInt(document.getElementById('donate-amount').value)||donateAmt;
+  let mpesa=document.getElementById('mpesa-num').value.trim();
+  if(!amt||amt<10){toast('⚠️ Please enter an amount');return}
+  if(!mpesa){toast('⚠️ Please enter M-Pesa number');return}
+  let d=DB.donations.find(x=>x.id===DB.currentDonateTarget);
+  if(d){d.raised=Math.min(d.target,d.raised+amt);if(d.raised>=d.target)d.completed=true;}
+  closeModal('donate-modal');
+  toast(`💚 M-Pesa prompt sent to ${mpesa}. Thank you for your kindness!`,5000);
+  updateStats();
+  if(document.getElementById('page-donate').classList.contains('active')) renderDonate();
+}
+
+// ===== ACTIVISM =====
+function renderActivism(){
+  let f=DB.currentFilter.activism;
+  let filtered=DB.activism.filter(a=>{
+    if(f==='all') return true;
+    if(f==='Strike') return a.type.includes('Strike');
+    if(f==='Demonstration') return a.type.includes('Demonstration');
+    if(f==='Petition') return a.type.includes('Petition');
+    return true;
+  });
+  let list=document.getElementById('activism-list');
+  if(!filtered.length){list.innerHTML='<div class="empty-state"><span class="es-icon">✊</span><p>No notices posted yet.</p></div>';return}
+  list.innerHTML=filtered.map((a,i)=>`
+    <div class="activism-card">
+      <div class="ac-header">
+        <div>
+          <div class="ac-type" style="color:${a.type.includes('Strike')?'var(--red)':a.type.includes('Demonstration')?'#B45309':'var(--green)'}">${a.type}</div>
+          <div class="ac-title">${a.title}</div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--muted)">${a.org}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:16px">
+          <div style="font-size:11px;color:var(--muted)">Posted: ${a.date}</div>
+          ${a.actionDate?`<div style="font-size:11px;font-weight:700;color:var(--red);margin-top:3px">Action: ${a.actionDate}</div>`:''}
+        </div>
+      </div>
+      <div class="ac-body">${a.body}</div>
+      ${a.files.length?`<div style="margin-top:10px">${a.files.map(f=>`<span class="evidence-item">📎 ${f}</span>`).join('')}</div>`:''}
+      <div class="ac-footer">
+        <button class="support-btn${a.supported?' ':'  '}" style="background:${a.supported?'var(--green)':'var(--surface)'};color:${a.supported?'#fff':'var(--text)'};border:1px solid ${a.supported?'var(--green)':'var(--border)'}" onclick="supportActivism(${i})">
+          ${a.supported?'✅':'✊'} ${a.supports.toLocaleString()} Support${a.supports!==1?'s':''}
+        </button>
+        <span style="font-size:12px;color:var(--muted)">📅 Filed ${a.date} — officially timestamped on this platform</span>
+      </div>
+    </div>`).join('');
+}
+function supportActivism(i){
+  let a=DB.activism[i];
+  if(a.supported){a.supports--;a.supported=false;toast('Support withdrawn')}
+  else{a.supports++;a.supported=true;toast('✊ You are now supporting this action')}
+  renderActivism();
+}
+function submitActivism(){
+  let type=document.getElementById('a-type').value;
+  let org=document.getElementById('a-org').value.trim();
+  let title=document.getElementById('a-title').value.trim();
+  let body=document.getElementById('a-body').value.trim();
+  if(!org||!title||!body){toast('⚠️ Please fill all required fields');return}
+  DB.activism.unshift({type,org,title,body,date:new Date().toISOString().split('T')[0],actionDate:document.getElementById('a-date').value,files:[],supports:0,supported:false});
+  closeModal('activism-modal');
+  ['a-org','a-title','a-body','a-date'].forEach(id=>document.getElementById(id).value='');
+  toast('✅ Notice posted and timestamped. The Ministry has been notified.',5000);
+  renderActivism();
+}
+
+// ===== MINISTRY =====
+function renderMinistry(){
+  // Stats
+  let total=DB.complaints.length;
+  let resolved=DB.complaints.filter(c=>c.status==='resolved').length;
+  let emerg=DB.complaints.filter(c=>c.emergency).length;
+  let oneWeekAgo=new Date();oneWeekAgo.setDate(oneWeekAgo.getDate()-7);
+  let newThis=DB.complaints.filter(c=>{try{let d=new Date(c.date);return d>=oneWeekAgo}catch{return false}}).length;
+  document.getElementById('ms-total').textContent=total;
+  document.getElementById('ms-new').textContent=newThis||total;
+  document.getElementById('ms-resolved').textContent=resolved;
+  document.getElementById('ms-emergency').textContent=emerg;
+  // Resolutions
+  let rl=document.getElementById('resolutions-list');
+  rl.innerHTML=DB.resolutions.map(r=>`
+    <div class="resolution-card">
+      <div class="rc-header">
+        <div>
+          <span class="badge badge-resolved" style="margin-bottom:6px;display:inline-flex">${r.type}</span>
+          <div class="rc-title">${r.title}</div>
+          ${r.complaint?`<div style="font-size:11.5px;color:var(--muted);margin-top:2px">Re: ${r.complaint}</div>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:16px">
+          <div style="font-size:11px;color:var(--muted)">${r.date}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${r.officer}</div>
+        </div>
+      </div>
+      <div class="rc-body">${r.body}</div>
+    </div>`).join('');
+  // Pending
+  let pending=DB.complaints.filter(c=>c.status==='new'||c.status==='inreview'||c.status==='escalated');
+  document.getElementById('pending-list').innerHTML=pending.length?
+    pending.map(c=>`<div style="margin-bottom:12px">${complaintCardHTML(c,true)}</div>`).join(''):
+    '<div class="empty-state"><span class="es-icon">✅</span><p>All complaints have been addressed!</p></div>';
+  // Stats breakdown
+  let cats={};DB.complaints.forEach(c=>{cats[c.category]=(cats[c.category]||0)+1});
+  document.getElementById('stats-breakdown').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([cat,n])=>`
+    <div style="background:var(--surface);border-radius:10px;padding:16px">
+      <div style="font-size:22px;font-weight:900;color:var(--red)">${n}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:3px">${cat}</div>
+    </div>`).join('');
+  // County chart
+  let cty={};DB.complaints.forEach(c=>{cty[c.county]=(cty[c.county]||0)+1});
+  let sorted=Object.entries(cty).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  let mx=sorted[0]?.[1]||1;
+  document.getElementById('county-chart').innerHTML=sorted.map(([cn,n])=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="width:130px;font-size:12.5px;font-weight:600;text-align:right;flex-shrink:0">${cn}</div>
+      <div style="flex:1;height:22px;background:var(--surface);border-radius:4px;overflow:hidden">
+        <div style="height:100%;background:var(--red);border-radius:4px;width:${Math.round(n/mx*100)}%;display:flex;align-items:center;padding-left:8px">
+          <span style="font-size:11px;font-weight:700;color:#fff">${n}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function submitResolution(){
+  let title=document.getElementById('r-title').value.trim();
+  let body=document.getElementById('r-body').value.trim();
+  let type=document.getElementById('r-type').value;
+  let cid=document.getElementById('r-id').value.trim();
+  if(!title||!body){toast('⚠️ Please fill in required fields');return}
+  let rid='RES-2026-'+String(Math.floor(100+Math.random()*899));
+  DB.resolutions.unshift({id:rid,complaint:cid,title,body,type,date:new Date().toISOString().split('T')[0],officer:'Ministry of Health Official'});
+  if(cid){
+    let c=DB.complaints.find(x=>x.id===cid);
+    if(c){c.status='resolved';c.response=body}
+  }
+  closeModal('resolution-modal');
+  ['r-title','r-body','r-id'].forEach(id=>document.getElementById(id).value='');
+  toast('🏛 Resolution published and linked to complaint.',5000);
+  updateStats();
+  if(document.getElementById('page-ministry').classList.contains('active')) renderMinistry();
+  if(document.getElementById('page-feed').classList.contains('active')) renderFeed();
+}
+
+// ===== TRACKING =====
+function trackCase(){
+  let q=document.getElementById('track-input').value.trim().toUpperCase();
+  let res=document.getElementById('track-result');
+  let c=DB.complaints.find(x=>x.id===q||x.id===q.replace('MED ','MED-').replace('MED-','MED-'));
+  if(!c){res.innerHTML=`<div style="text-align:center;padding:16px;color:var(--muted);font-size:13.5px">No complaint found with that tracking number. Check the number and try again.<br><br>Try one of the demo numbers: <b>MED-2026-0892</b></div>`;return}
+  let steps=[{l:'Submitted',s:'done'},{l:'Under Review',s:c.status==='new'?'active':'done'},{l:'Escalated',s:c.status==='escalated'?'active':c.status==='resolved'?'done':'pending'},{l:'Resolved',s:c.status==='resolved'?'done':'pending'}];
+  res.innerHTML=`
+    <div class="track-wrap">
+      <div class="track-num">${c.id}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px">${c.category} · ${c.facility} · ${c.county}</div>
+      <div class="track-steps">
+        ${steps.map((st,i)=>`
+          <div class="track-step">
+            <div style="display:flex;align-items:center;width:100%">
+              <div class="track-dot ${st.s}">${st.s==='done'?'✓':st.s==='active'?'→':i+1}</div>
+              ${i<steps.length-1?`<div class="track-line ${st.s==='done'?'done':''}"></div>`:''}
+            </div>
+            <div class="track-step-label ${st.s}">${st.l}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    ${c.response?`<div class="response-box"><div class="rb-header">🏛 Ministry Response</div><div class="rb-text">${c.response}</div></div>`:'<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px">No Ministry response yet. Cases are typically reviewed within 5-7 working days.</div>'}
+  `;
+}
+
+// ===== STATS =====
+function updateStats(){
+  let n=DB.complaints.length;
+  let r=DB.complaints.filter(c=>c.status==='resolved').length;
+  let hosp=new Set(DB.complaints.map(c=>c.facility)).size;
+  let don=DB.donations.reduce((s,d)=>s+d.raised,0);
+  document.getElementById('st-complaints').textContent=n;
+  document.getElementById('st-resolved').textContent=r;
+  document.getElementById('st-hospitals').textContent=hosp;
+  document.getElementById('st-donated').textContent='KSh '+don.toLocaleString();
+}
+
+// ===== TABS =====
+function switchTab(area,tab){
+  let panels=document.querySelectorAll(`#page-${area} .tab-panel`);
+  let btns=document.querySelectorAll(`#page-${area} .tab-btn`);
+  panels.forEach(p=>p.classList.remove('active'));
+  btns.forEach(b=>b.classList.remove('active'));
+  let panel=document.getElementById(`${area}-tab-${tab}`);
+  if(panel) panel.classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== CLOSE MODAL ON BACKDROP =====
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o) closeModal(o.id)});
+});
+
+// ===== INIT =====
+updateStats();
+
+</script>
+</body>
+</html>
